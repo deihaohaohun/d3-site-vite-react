@@ -9,7 +9,7 @@ export default function Home() {
         Vite, React, React Router, Zustand, Mantine ...
       </Text>
 
-      <div className="cards grid grid-cols-4 w-[980px]">
+      <div className="cards grid grid-cols-4 gap-4 w-[980px]">
         <Card shadow="sm" padding="lg" radius="md" withBorder>
           <Card.Section>
             <Image
@@ -26,6 +26,24 @@ export default function Home() {
             onClick={() => navigate("/bili")}
           >
             哔哩历史
+          </Button>
+        </Card>
+        <Card shadow="sm" padding="lg" radius="md" withBorder>
+          <Card.Section>
+            <Image
+              src="https://d-ssl.dtstatic.com/uploads/blog/202303/17/20230317005620_17580.thumb.300_300_c.jpg_webp"
+              height={140}
+            />
+          </Card.Section>
+
+          <Button
+            variant="light"
+            fullWidth
+            radius="md"
+            className="mt-5"
+            onClick={() => navigate("/bili")}
+          >
+            复习笔记
           </Button>
         </Card>
       </div>

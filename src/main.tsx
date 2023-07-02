@@ -1,10 +1,11 @@
-import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 import "normalize.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Home from "./pages/Home.tsx";
+import BiliHistory from "./pages/bili/BiliHistory.tsx";
+import axios from "axios";
 
 const router = createBrowserRouter([
   {
@@ -22,14 +23,17 @@ const router = createBrowserRouter([
       },
       {
         path: "bili",
-        element: <h3>Bili History</h3>,
+        element: <BiliHistory />,
+        loader: async () => {
+          let resp = await axios.get("http://192.168.18.8:3000/videos/Doing");
+          return { videos: resp.data };
+        },
+        errorElement: <h1>Error</h1>,
       },
     ],
   },
 ]);
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-  <React.StrictMode>
-    <RouterProvider router={router} />
-  </React.StrictMode>
+  <RouterProvider router={router} />
 );
