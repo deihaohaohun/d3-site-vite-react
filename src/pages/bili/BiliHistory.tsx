@@ -7,21 +7,18 @@ import {
   NumberInput,
   Radio,
   SegmentedControl,
-  Tooltip,
 } from "@mantine/core";
-import { Text, Image, ActionIcon } from "@mantine/core";
-import {
-  IconPlus,
-  IconExposurePlus1,
-  IconQuestionMark,
-} from "@tabler/icons-react";
+import { ActionIcon } from "@mantine/core";
+import { IconPlus, IconQuestionMark } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
+import Video from "../../components/Video";
+import { useState } from "react";
 
 export default function BiliHistory() {
   let data: any = useLoaderData();
   const [opened, { open, close }] = useDisclosure(false);
 
-  let videos = data.videos;
+  const [videos, setVideos] = useState(data.videos);
 
   return (
     <div className="w-3/5 min-w-[980px] mx-auto pt-4">
@@ -51,33 +48,7 @@ export default function BiliHistory() {
 
       <div className="grid grid-cols-6 gap-2 mt-4">
         {videos.map((v: any) => (
-          <div key={v.id} className="relative">
-            <div className="relative">
-              <Image
-                className="rounded-md overflow-hidden"
-                src={v.cover}
-              ></Image>
-
-              <div className="absolute bottom-2 left-2">
-                <Tooltip label={`全 ${v.total} 话`}>
-                  <Button size="xs">看到 {v.current} 话</Button>
-                </Tooltip>
-              </div>
-            </div>
-
-            <Text size={"lg"} lineClamp={2}>
-              {v.title}
-            </Text>
-
-            <ActionIcon
-              className="absolute top-2 right-2"
-              size="lg"
-              radius="md"
-              variant="default"
-            >
-              <IconExposurePlus1 />
-            </ActionIcon>
-          </div>
+          <Video key={v.id} video={v} />
         ))}
       </div>
 

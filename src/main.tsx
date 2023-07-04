@@ -6,6 +6,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Home from "./pages/Home.tsx";
 import BiliHistory from "./pages/bili/BiliHistory.tsx";
 import axios from "axios";
+import { Toaster } from "react-hot-toast";
 
 const router = createBrowserRouter([
   {
@@ -35,5 +36,8 @@ const router = createBrowserRouter([
 ]);
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-  <RouterProvider router={router} />
+  <>
+    <RouterProvider router={router} />
+    <Toaster />
+  </>
 );
