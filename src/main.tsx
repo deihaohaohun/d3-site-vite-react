@@ -7,6 +7,8 @@ import Home from "./pages/Home.tsx";
 import BiliHistory from "./pages/bili/BiliHistory.tsx";
 import axios from "axios";
 import { Toaster } from "react-hot-toast";
+import Index from "./pages/bili/Index.tsx";
+import Statistic from "./pages/bili/Statistic.tsx";
 
 const router = createBrowserRouter([
   {
@@ -25,11 +27,23 @@ const router = createBrowserRouter([
       {
         path: "bili",
         element: <BiliHistory />,
-        loader: async () => {
-          let resp = await axios.get("http://192.168.18.8:3000/videos/Doing");
-          return { videos: resp.data };
-        },
         errorElement: <h1>Error</h1>,
+        children: [
+          {
+            index: true,
+            element: <Index />,
+            loader: async () => {
+              const resp = await axios.get(
+                "http://192.168.18.8:3000/videos/Doing"
+              );
+              return { videos: resp.data };
+            },
+          },
+          {
+            element: <Statistic />,
+            path: "statistic",
+          },
+        ],
       },
     ],
   },

@@ -1,11 +1,16 @@
 import { Button, Tooltip, Image, Text, ActionIcon } from "@mantine/core";
 import { useImmer } from "use-immer";
-import { IconExposurePlus1, IconCheck } from "@tabler/icons-react";
+import {
+  IconExposurePlus1,
+  IconCheck,
+  IconPlayerPlay,
+  IconHistory,
+} from "@tabler/icons-react";
 import axios from "axios";
 import { useState } from "react";
 import toast from "react-hot-toast";
 
-type Video = {
+export type Video = {
   id: string;
   title: string;
   cover: string;
@@ -13,9 +18,16 @@ type Video = {
   type: "Bangumi" | "Documentary" | "Movie";
   total: number;
   current: number;
+  status: "Doing" | "Todo" | "Done";
 };
 
-export default function Video({ video }: { video: Video }) {
+export default function Video({
+  video,
+  removeFunc,
+}: {
+  video: Video;
+  removeFunc: (id: string) => void;
+}) {
   const [v, setV] = useImmer(video);
 
   const updateV = () => {
@@ -26,26 +38,60 @@ export default function Video({ video }: { video: Video }) {
 
   const [loading, setLoading] = useState(false);
   const onBtnClicked = async () => {
-    setLoading(true);
-    try {
-      await axios.put(`http://localhost:3000/videos/${v.id}`);
-      toast.success("操作成功！");
-      updateV();
-      setLoading(false);
-    } catch (error) {
-      setLoading(false);
+    switch (v.status) {
+      case "Doing":
+        setLoading(true);
+        try {
+          if (v.current === v.total) {
+            await axios.put(`http://localhost:3000/videos/finish/${v.id}`);
+            removeFunc(v.id);
+          } else {
+            await axios.put(`http://localhost:3000/videos/${v.id}`);
+            updateV();
+          }
+          toast.success("操作成功！");
+          setLoading(false);
+        } catch (error) {
+          setLoading(false);
+        }
+        return;
+      case "Todo":
+        try {
+          await axios.put(`http://localhost:3000/videos/start/${v.id}`);
+          removeFunc(v.id);
+          toast.success("操作成功！");
+          setLoading(false);
+        } catch (error) {
+          setLoading(false);
+        }
+        return;
+      case "Done":
+        toast("正在开发...", {
+          icon: "❤️",
+        });
+        return;
     }
   };
 
   const getAddIcon = () => {
-    switch (v.type) {
-      case "Bangumi":
-      case "Documentary":
-        return <IconExposurePlus1 />;
-      case "Movie":
-        return <IconCheck />;
-      default:
-        return <IconExposurePlus1 />;
+    switch (v.status) {
+      case "Doing":
+        switch (v.type) {
+          case "Bangumi":
+          case "Documentary":
+            if (v.current === v.total) {
+              return <IconCheck />;
+            }
+            return <IconExposurePlus1 />;
+          case "Movie":
+            return <IconCheck />;
+          default:
+            return <IconExposurePlus1 />;
+        }
+      case "Todo":
+        return <IconPlayerPlay />;
+      case "Done":
+        return <IconHistory />;
     }
   };
 
@@ -54,15 +100,17 @@ export default function Video({ video }: { video: Video }) {
       <div className="relative">
         <Image className="rounded-md overflow-hidden" src={v.cover}></Image>
 
-        <div className="absolute bottom-2 left-2">
-          <Tooltip
-            label={`全 ${v.total} ${v.type === "Bangumi" ? "话" : "集"}`}
-          >
-            <Button size="xs">
-              看到 {v.current} {v.type === "Bangumi" ? "话" : "集"}
-            </Button>
-          </Tooltip>
-        </div>
+        {v.status === "Doing" && (
+          <div className="absolute bottom-2 left-2">
+            <Tooltip
+              label={`全 ${v.total} ${v.type === "Bangumi" ? "话" : "集"}`}
+            >
+              <Button size="xs">
+                看到第 {v.current} {v.type === "Bangumi" ? "话" : "集"}
+              </Button>
+            </Tooltip>
+          </div>
+        )}
       </div>
 
       <Text size={"lg"} lineClamp={2}>
