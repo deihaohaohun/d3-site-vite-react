@@ -8,7 +8,7 @@ export default function Statistic() {
     const cal: CalHeatmap = new CalHeatmap();
 
     cal.paint({
-      itemSelector: "history-heatmap",
+      itemSelector: "#history-heatmap",
       date: { start: new Date("2023-01-01") },
       range: 12,
       domain: {

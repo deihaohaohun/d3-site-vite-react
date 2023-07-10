@@ -34,7 +34,7 @@ const router = createBrowserRouter([
             element: <Index />,
             loader: async () => {
               const resp = await axios.get(
-                "http://192.168.18.8:3000/videos/Doing"
+                "https://d3-site-server.onrender.com/videos/Doing"
               );
               return { videos: resp.data };
             },

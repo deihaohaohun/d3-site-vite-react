@@ -24,7 +24,9 @@ export default function Index() {
 
   const [videos, setVideos] = useState<V[]>(data.videos);
   const getTypedVideos = async (type: string) => {
-    const resp = await axios.get(`http://192.168.18.8:3000/videos/${type}`);
+    const resp = await axios.get(
+      `https://d3-site-server.onrender.com/videos/${type}`
+    );
     setVideos(resp.data);
   };
 
@@ -38,7 +40,7 @@ export default function Index() {
   });
   const createVideo = async () => {
     console.log(form.values);
-    await axios.post("http://localhost:3000/videos", form.values);
+    await axios.post("https://d3-site-server.onrender.com/videos", form.values);
     toast.success("添加视频成功");
     form.reset();
   };

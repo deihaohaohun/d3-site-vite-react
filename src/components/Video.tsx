@@ -43,10 +43,14 @@ export default function Video({
         setLoading(true);
         try {
           if (v.current === v.total) {
-            await axios.put(`http://localhost:3000/videos/finish/${v.id}`);
+            await axios.put(
+              `https://d3-site-server.onrender.com/videos/finish/${v.id}`
+            );
             removeFunc(v.id);
           } else {
-            await axios.put(`http://localhost:3000/videos/${v.id}`);
+            await axios.put(
+              `https://d3-site-server.onrender.com/videos/${v.id}`
+            );
             updateV();
           }
           toast.success("操作成功！");
@@ -57,7 +61,9 @@ export default function Video({
         return;
       case "Todo":
         try {
-          await axios.put(`http://localhost:3000/videos/start/${v.id}`);
+          await axios.put(
+            `https://d3-site-server.onrender.com/videos/start/${v.id}`
+          );
           removeFunc(v.id);
           toast.success("操作成功！");
           setLoading(false);

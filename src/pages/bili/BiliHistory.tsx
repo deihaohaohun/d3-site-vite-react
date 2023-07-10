@@ -10,8 +10,10 @@ export default function BiliHistory() {
   useEffect(() => {
     if (pathname.includes("statistic")) {
       setLocation("statistic");
+    } else {
+      setLocation("history");
     }
-  }, []);
+  }, [pathname]);
 
   const onNavChange = useCallback((value: string) => {
     value === "history" ? navigate("/bili") : navigate("/bili/statistic");
