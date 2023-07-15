@@ -4,7 +4,7 @@ import Tooltip from "cal-heatmap/plugins/Tooltip";
 import "cal-heatmap/cal-heatmap.css";
 import { useEffect } from "react";
 import { http } from "../../utils/fetch";
-import * as dayjs from "dayjs";
+import dayjs from "dayjs/esm/index.js";
 import "dayjs/locale/zh-cn";
 
 export default function Statistic() {
