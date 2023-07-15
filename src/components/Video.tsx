@@ -1,4 +1,12 @@
-import { Button, Tooltip, Image, Text, ActionIcon } from "@mantine/core";
+import {
+  Button,
+  Tooltip,
+  Image,
+  Text,
+  ActionIcon,
+  Modal,
+  Group,
+} from "@mantine/core";
 import { useImmer } from "use-immer";
 import {
   IconExposurePlus1,
@@ -9,6 +17,7 @@ import {
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { http } from "../utils/fetch";
+import { useDisclosure } from "@mantine/hooks";
 
 export type Video = {
   id: string;
@@ -41,19 +50,7 @@ export default function Video({
     switch (v.status) {
       case "Doing":
         setLoading(true);
-        try {
-          if (v.current === v.total) {
-            await http.put(`/videos/finish/${v.id}`);
-            removeFunc(v.id);
-          } else {
-            await http.put(`/videos/${v.id}`);
-            updateV();
-          }
-          toast.success("操作成功！");
-          setLoading(false);
-        } catch (error) {
-          setLoading(false);
-        }
+        open();
         return;
       case "Todo":
         try {
@@ -94,31 +91,57 @@ export default function Video({
         return <IconHistory />;
     }
   };
+  const getUpdateText = () => {
+    switch (v.type) {
+      case "Bangumi":
+        return "追一话?";
+      case "Documentary":
+        return "看一集?";
+      case "Movie":
+        return "开始观看?";
+    }
+  };
+
+  const [opened, { open, close }] = useDisclosure(false);
+  async function onTodoBtnClicked() {
+    if (v.current === v.total) {
+      await http.put(`/videos/finish/${v.id}`);
+      removeFunc(v.id);
+    } else {
+      await http.put(`/videos/${v.id}`);
+      updateV();
+    }
+    toast.success("操作成功！");
+    onTodoCancel();
+  }
+  function onTodoCancel() {
+    setLoading(false);
+    close();
+  }
 
   return (
-    <div className="relative">
+    <div className="relative shadow-md rounded-md p-2">
       <div className="relative">
         <Image className="rounded-md overflow-hidden" src={v.cover}></Image>
 
         {v.status === "Doing" && (
           <div className="absolute bottom-2 left-2">
-            <Tooltip
-              label={`全 ${v.total} ${v.type === "Bangumi" ? "话" : "集"}`}
-            >
-              <Button size="xs">
-                看到第 {v.current} {v.type === "Bangumi" ? "话" : "集"}
-              </Button>
-            </Tooltip>
+            <Button size="xs">
+              看到第 {v.current} {v.type === "Bangumi" ? "话" : "集"}
+            </Button>
           </div>
         )}
       </div>
 
-      <Text size={"lg"} lineClamp={2}>
+      <Text size="lg" lineClamp={2}>
         {v.title}
+      </Text>
+      <Text size="sm" className="text-gray-500">
+        {`全 ${v.total} ${v.type === "Bangumi" ? "话" : "集"}`}
       </Text>
 
       <ActionIcon
-        className="absolute top-2 right-2"
+        className="absolute top-4 right-4"
         size="lg"
         radius="md"
         variant="default"
@@ -127,6 +150,20 @@ export default function Video({
       >
         {getAddIcon()}
       </ActionIcon>
+
+      <Modal
+        opened={opened}
+        withCloseButton={false}
+        onClose={onTodoCancel}
+        title={getUpdateText()}
+      >
+        <Group position="right">
+          <Button variant="default" onClick={onTodoCancel}>
+            取消
+          </Button>
+          <Button onClick={onTodoBtnClicked}>确定</Button>
+        </Group>
+      </Modal>
     </div>
   );
 }

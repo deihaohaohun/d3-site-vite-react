@@ -53,9 +53,9 @@ export default function Index() {
       <div className="flex justify-between items-center">
         <SegmentedControl
           data={[
-            { label: "Doing", value: "Doing" },
-            { label: "Todo", value: "Todo" },
-            { label: "Done", value: "Done" },
+            { label: "在看", value: "Doing" },
+            { label: "想看", value: "Todo" },
+            { label: "看过", value: "Done" },
           ]}
           color="blue"
           onChange={getTypedVideos}
@@ -66,7 +66,7 @@ export default function Index() {
         </ActionIcon>
       </div>
 
-      <div className="grid grid-cols-6 gap-2 mt-4">
+      <div className="grid grid-cols-6 gap-4 mt-4">
         {videos.map((v: V) => (
           <Video key={v.id} video={v} removeFunc={removeVideo} />
         ))}

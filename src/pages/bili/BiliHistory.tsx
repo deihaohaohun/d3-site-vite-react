@@ -1,6 +1,6 @@
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { SegmentedControl } from "@mantine/core";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function BiliHistory() {
   const navigate = useNavigate();
@@ -15,10 +15,10 @@ export default function BiliHistory() {
     }
   }, [pathname]);
 
-  const onNavChange = useCallback((value: string) => {
+  const onNavChange = (value: string) => {
     value === "history" ? navigate("/bili") : navigate("/bili/statistic");
     setLocation(value);
-  }, []);
+  };
 
   return (
     <div className="w-3/5 min-w-[980px] mx-auto pt-4">

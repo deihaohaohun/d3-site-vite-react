@@ -3,46 +3,70 @@ import Tooltip from "cal-heatmap/plugins/Tooltip";
 // Optionally import the CSS
 import "cal-heatmap/cal-heatmap.css";
 import { useEffect } from "react";
+import { http } from "../../utils/fetch";
+import * as dayjs from "dayjs";
+import "dayjs/locale/zh-cn";
 
 export default function Statistic() {
   useEffect(() => {
-    const cal: CalHeatmap = new CalHeatmap();
+    http.get("/histories").then(resp => {
+      const data = resp.data;
+      const dateMap = new Map<string, number>();
+      for (const { when } of data) {
+        const date = dayjs(when).format("YYYY-MM-DD");
+        if (dateMap.has(date)) {
+          let num = dateMap.get(date) ?? 0;
+          num++;
+          dateMap.set(date, num);
+        } else {
+          dateMap.set(date, 1);
+        }
+      }
+      const source = [];
+      for (const [date, value] of dateMap) {
+        source.push({ date, value });
+      }
+      const max = Math.max(...source.map(s => s.value));
 
-    cal.paint(
-      {
-        itemSelector: "#history-heatmap",
-        data: {
-          source: [
-            { date: "2023-01-01", value: 3 },
-            { date: "2023-01-02", value: 6 },
-          ],
-          x: "date",
-          y: "value",
-        },
-        date: { start: new Date("2023-01-01") },
-        range: 12,
-        scale: {
-          color: {
-            scheme: "BuPu",
-            type: "linear",
-            domain: [0, 10],
+      const cal: CalHeatmap = new CalHeatmap();
+
+      cal.paint(
+        {
+          itemSelector: "#history-heatmap",
+          data: {
+            source,
+            x: "date",
+            y: "value",
+            defaultValue: 0,
           },
+          defaultValue: 0,
+          date: { start: new Date("2023-01-01") },
+          range: 12,
+          scale: {
+            color: {
+              scheme: "BuPu",
+              type: "linear",
+              domain: [0, max],
+            },
+          },
+          domain: {
+            type: "month",
+          },
+          subDomain: { type: "day", radius: 2 },
         },
-        domain: {
-          type: "month",
-        },
-        subDomain: { type: "day", radius: 2 },
-      },
-      [
         [
-          Tooltip,
-          {
-            text: (timestamp, value, dayjsDate) =>
-              `${value} --- ${dayjsDate.toString()}`,
-          },
-        ],
-      ]
-    );
+          [
+            Tooltip,
+            {
+              text: (timestamp: number, value: number) => {
+                const date = dayjs(timestamp).format("YYYY-MM-DD");
+                return `${date} 追了 ${value} 话`;
+              },
+            },
+          ],
+        ]
+      );
+    });
   }, []);
 
   return (
