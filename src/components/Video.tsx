@@ -6,9 +6,9 @@ import {
   IconPlayerPlay,
   IconHistory,
 } from "@tabler/icons-react";
-import axios from "axios";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { http } from "../utils/fetch";
 
 export type Video = {
   id: string;
@@ -43,14 +43,10 @@ export default function Video({
         setLoading(true);
         try {
           if (v.current === v.total) {
-            await axios.put(
-              `https://d3-site-server.onrender.com/videos/finish/${v.id}`
-            );
+            await http.put(`/videos/finish/${v.id}`);
             removeFunc(v.id);
           } else {
-            await axios.put(
-              `https://d3-site-server.onrender.com/videos/${v.id}`
-            );
+            await http.put(`/videos/${v.id}`);
             updateV();
           }
           toast.success("操作成功！");
@@ -61,9 +57,7 @@ export default function Video({
         return;
       case "Todo":
         try {
-          await axios.put(
-            `https://d3-site-server.onrender.com/videos/start/${v.id}`
-          );
+          await http.put(`videos/start/${v.id}`);
           removeFunc(v.id);
           toast.success("操作成功！");
           setLoading(false);

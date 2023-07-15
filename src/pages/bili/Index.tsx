@@ -12,11 +12,11 @@ import {
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { IconPlus, IconQuestionMark } from "@tabler/icons-react";
-import axios from "axios";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useLoaderData } from "react-router-dom";
 import Video, { Video as V } from "../../components/Video";
+import { http } from "../../utils/fetch";
 
 export default function Index() {
   const data: any = useLoaderData();
@@ -24,9 +24,7 @@ export default function Index() {
 
   const [videos, setVideos] = useState<V[]>(data.videos);
   const getTypedVideos = async (type: string) => {
-    const resp = await axios.get(
-      `https://d3-site-server.onrender.com/videos/${type}`
-    );
+    const resp = await http.get(`videos/${type}`);
     setVideos(resp.data);
   };
 
@@ -39,10 +37,10 @@ export default function Index() {
     },
   });
   const createVideo = async () => {
-    console.log(form.values);
-    await axios.post("https://d3-site-server.onrender.com/videos", form.values);
+    await http.post("/videos", form.values);
     toast.success("添加视频成功");
     form.reset();
+    close();
   };
 
   const removeVideo = (id: string) => {
@@ -69,7 +67,7 @@ export default function Index() {
       </div>
 
       <div className="grid grid-cols-6 gap-2 mt-4">
-        {videos.map((v: any) => (
+        {videos.map((v: V) => (
           <Video key={v.id} video={v} removeFunc={removeVideo} />
         ))}
       </div>
