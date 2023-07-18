@@ -5,9 +5,16 @@ export default function Home() {
   const navigate = useNavigate();
   return (
     <div className="h-full flex flex-col justify-center items-center">
-      <Text className="w-[980px] mb-6" size={"lg"}>
-        Vite, React, React Router, Zustand, Mantine ...
-      </Text>
+      <div className="w-[980px]">
+        <h2>Frontend</h2>
+        <Text className="mb-6" size="md">
+          Vite, React, React Router, Zustand, Mantine, Cal-Heatmap, Vercel ...
+        </Text>
+        <h2>Backend</h2>
+        <Text className="mb-6" size="md">
+          Nestjs, Prisma, MongoDB Atlas, Render ...
+        </Text>
+      </div>
 
       <div className="cards grid grid-cols-4 gap-4 w-[980px]">
         <Card shadow="sm" padding="lg" radius="md" withBorder>

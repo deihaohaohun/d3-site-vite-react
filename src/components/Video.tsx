@@ -94,16 +94,19 @@ export default function Video({
   const getUpdateText = () => {
     switch (v.type) {
       case "Bangumi":
+        // TODO: 增加对最后一话的处理
         return "追一话?";
       case "Documentary":
         return "看一集?";
       case "Movie":
-        return "开始观看?";
+        return "标记看过?";
     }
   };
 
   const [opened, { open, close }] = useDisclosure(false);
+  const [updating, setUpdating] = useState(false);
   async function onTodoBtnClicked() {
+    setUpdating(true);
     if (v.current === v.total) {
       await http.put(`/videos/finish/${v.id}`);
       removeFunc(v.id);
@@ -111,6 +114,7 @@ export default function Video({
       await http.put(`/videos/${v.id}`);
       updateV();
     }
+    setUpdating(false);
     toast.success("操作成功！");
     onTodoCancel();
   }
@@ -161,7 +165,9 @@ export default function Video({
           <Button variant="default" onClick={onTodoCancel}>
             取消
           </Button>
-          <Button onClick={onTodoBtnClicked}>确定</Button>
+          <Button onClick={onTodoBtnClicked} loading={updating}>
+            确定
+          </Button>
         </Group>
       </Modal>
     </div>
