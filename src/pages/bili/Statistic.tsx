@@ -2,7 +2,7 @@ import CalHeatmap from "cal-heatmap";
 import Tooltip from "cal-heatmap/plugins/Tooltip";
 // Optionally import the CSS
 import "cal-heatmap/cal-heatmap.css";
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { http } from "../../utils/fetch";
 import dayjs from "dayjs/esm/index.js";
 import "dayjs/locale/zh-cn";
@@ -66,13 +66,26 @@ export default function Statistic() {
           ],
         ]
       );
+
+      cal.on("click", (_event: any, timestamp: number) => {
+        setDate(dayjs(timestamp).format("YYYY-MM-DD"));
+      });
     });
   }, []);
+
+  const [date, setDate] = useState("");
+  useMemo(async () => {
+    if (date !== "") {
+      http.get(`/histories/${date}`);
+      return [];
+    }
+    return [];
+  }, [date]);
 
   return (
     <>
       <h1>追番热力图</h1>
-      <div className="mx-auto w-4/5" id="history-heatmap"></div>
+      <div id="history-heatmap"></div>
     </>
   );
 }

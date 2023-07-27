@@ -48,7 +48,7 @@ export default function Home() {
             fullWidth
             radius="md"
             className="mt-5"
-            onClick={() => navigate("/bili")}
+            onClick={() => navigate("/abhs")}
           >
             复习笔记
           </Button>

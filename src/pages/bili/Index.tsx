@@ -8,15 +8,17 @@ import {
   Button,
   Image,
   SegmentedControl,
+  Tooltip,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
-import { IconPlus, IconQuestionMark } from "@tabler/icons-react";
+import { IconClipboard, IconPlus } from "@tabler/icons-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useLoaderData } from "react-router-dom";
 import Video, { Video as V } from "../../components/Video";
 import { http } from "../../utils/fetch";
+import { nanoid } from "nanoid";
 
 export default function Index() {
   const data: any = useLoaderData();
@@ -24,9 +26,12 @@ export default function Index() {
 
   const [videos, setVideos] = useState<V[]>(data.videos);
   const getTypedVideos = async (type: string) => {
+    setCurrent(type);
     const resp = await http.get(`videos/${type}`);
     setVideos(resp.data);
   };
+
+  const [current, setCurrent] = useState("Doing");
 
   const form = useForm({
     initialValues: {
@@ -41,11 +46,65 @@ export default function Index() {
     toast.success("添加视频成功");
     form.reset();
     close();
+    await getTypedVideos("Todo");
   };
 
   const removeVideo = (id: string) => {
     const newVideos = videos.filter(v => v.id !== id);
     setVideos(newVideos);
+  };
+
+  const blob2base64 = async (blob: any) => {
+    return new Promise(r => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const dataUrl = reader.result as string;
+        const base64 = dataUrl?.split(",")[1];
+        r(base64);
+      };
+      reader.readAsDataURL(blob);
+    });
+  };
+
+  const readImgFromClipboard = () => {
+    const { title } = form.values;
+    if (title.trim() === "") {
+      toast("先输入视频名称~", {
+        icon: "❤️",
+      });
+      return;
+    }
+    navigator.permissions.query({ name: "clipboard-read" }).then(result => {
+      if (result.state == "granted" || result.state == "prompt") {
+        navigator.clipboard.read().then(async data => {
+          for (let i = 0; i < data.length; i++) {
+            console.log(data[i].types);
+            const blob = await data[i].getType("image/png");
+            const base64 = await blob2base64(blob);
+
+            const name = nanoid();
+            const resp = await http.post(
+              `https://gitee.com/api/v5/repos/deihaohaohun/picgo-img-bed/contents/${name}.png`,
+              {
+                access_token: "3900b0a7dea9a8f5fa67e8c0ed6b8c16",
+                content: base64,
+                message: `${form.values.title}封面图`,
+              }
+            );
+            form.setFieldValue("cover", resp.data.content.download_url);
+            console.log(
+              "🚀 ~ file: Index.tsx:90 ~ navigator.clipboard.read ~ resp:",
+              resp
+            );
+          }
+        });
+      }
+    });
+  };
+
+  const addVideo = () => {
+    form.reset();
+    open();
   };
 
   return (
@@ -61,9 +120,16 @@ export default function Index() {
           onChange={getTypedVideos}
         />
 
-        <ActionIcon size="lg" radius="md" variant="default" onClick={open}>
-          <IconPlus />
-        </ActionIcon>
+        {current === "Todo" && (
+          <ActionIcon
+            size="lg"
+            radius="md"
+            variant="default"
+            onClick={addVideo}
+          >
+            <IconPlus />
+          </ActionIcon>
+        )}
       </div>
 
       <div className="grid grid-cols-6 gap-4 mt-4">
@@ -82,9 +148,15 @@ export default function Index() {
         <div className="flex justify-center mb-4">
           {form.values.cover === "" ? (
             <div className="cover rounded-md w-[150px] h-[200px] border-solid border-2 border-sky-400 flex justify-center items-center">
-              <ActionIcon size="lg" radius="md">
-                <IconQuestionMark />
-              </ActionIcon>
+              <Tooltip label="从剪切板中上传">
+                <ActionIcon
+                  size="lg"
+                  radius="md"
+                  onClick={readImgFromClipboard}
+                >
+                  <IconClipboard />
+                </ActionIcon>
+              </Tooltip>
             </div>
           ) : (
             <Image maw={150} radius="md" src={form.values.cover}></Image>

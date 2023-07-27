@@ -1,12 +1,4 @@
-import {
-  Button,
-  Tooltip,
-  Image,
-  Text,
-  ActionIcon,
-  Modal,
-  Group,
-} from "@mantine/core";
+import { Button, Image, Text, ActionIcon, Modal, Group } from "@mantine/core";
 import { useImmer } from "use-immer";
 import {
   IconExposurePlus1,
@@ -94,8 +86,7 @@ export default function Video({
   const getUpdateText = () => {
     switch (v.type) {
       case "Bangumi":
-        // TODO: 增加对最后一话的处理
-        return "追一话?";
+        return v.current === v.total ? "标记看过?" : "追一话?";
       case "Documentary":
         return "看一集?";
       case "Movie":
