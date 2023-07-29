@@ -6,6 +6,8 @@ import { useEffect, useMemo, useState } from "react";
 import { http } from "../../utils/fetch";
 import dayjs from "dayjs/esm/index.js";
 import "dayjs/locale/zh-cn";
+import { Button, Image, Text } from "@mantine/core";
+import { Video } from "../../components/Video";
 
 export default function Statistic() {
   useEffect(() => {
@@ -76,16 +78,40 @@ export default function Statistic() {
   const [date, setDate] = useState("");
   useMemo(async () => {
     if (date !== "") {
-      http.get(`/histories/${date}`);
-      return [];
+      const r = await http.get(`/videos/date/${date}`);
+      return setVideos(r.data);
     }
     return [];
   }, [date]);
+
+  const [videos, setVideos] = useState<Video[]>([]);
 
   return (
     <>
       <h1>追番热力图</h1>
       <div id="history-heatmap"></div>
+
+      <div className="grid grid-cols-6 gap-4 mt-4">
+        {videos.map(v => (
+          <div className="shadow-md rounded-md p-2">
+            <div className="relative">
+              <Image
+                className="rounded-md overflow-hidden"
+                src={v.cover}
+              ></Image>
+
+              {v.type !== "Movie" && (
+                <Button className="absolute bottom-2 left-2" size="xs">
+                  看了 {v.count} 话
+                </Button>
+              )}
+            </div>
+            <Text size="lg" lineClamp={2}>
+              {v.title}
+            </Text>
+          </div>
+        ))}
+      </div>
     </>
   );
 }

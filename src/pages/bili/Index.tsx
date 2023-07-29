@@ -40,13 +40,27 @@ export default function Index() {
       type: "Bangumi",
       total: 1,
     },
+    validate: {
+      title: value => (value.trim() === "" ? "请输入视频名称" : null),
+      cover: value => (value.trim() === "" ? "请输入视频封面链接" : null),
+    },
   });
   const createVideo = async () => {
-    await http.post("/videos", form.values);
-    toast.success("添加视频成功");
-    form.reset();
-    close();
-    await getTypedVideos("Todo");
+    const { hasErrors, errors } = form.validate();
+    if (!hasErrors) {
+      await http.post("/videos", form.values);
+      toast.success("添加视频成功");
+      form.reset();
+      close();
+      await getTypedVideos("Todo");
+    } else {
+      const keys = ["title", "cover"];
+      for (const k of keys) {
+        if (errors[k]) {
+          return toast(errors[k] as string, { icon: "😵" });
+        }
+      }
+    }
   };
 
   const removeVideo = (id: string) => {
@@ -67,13 +81,6 @@ export default function Index() {
   };
 
   const readImgFromClipboard = () => {
-    const { title } = form.values;
-    if (title.trim() === "") {
-      toast("先输入视频名称~", {
-        icon: "❤️",
-      });
-      return;
-    }
     navigator.permissions.query({ name: "clipboard-read" }).then(result => {
       if (result.state == "granted" || result.state == "prompt") {
         navigator.clipboard.read().then(async data => {
@@ -92,12 +99,10 @@ export default function Index() {
               }
             );
             form.setFieldValue("cover", resp.data.content.download_url);
-            console.log(
-              "🚀 ~ file: Index.tsx:90 ~ navigator.clipboard.read ~ resp:",
-              resp
-            );
           }
         });
+      } else {
+        toast("读取剪切板失败惹 o.o", { icon: "😂" });
       }
     });
   };

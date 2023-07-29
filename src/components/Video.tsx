@@ -20,6 +20,7 @@ export type Video = {
   total: number;
   current: number;
   status: "Doing" | "Todo" | "Done";
+  count?: number;
 };
 
 export default function Video({
