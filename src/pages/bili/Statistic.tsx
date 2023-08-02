@@ -1,13 +1,11 @@
 import CalHeatmap from "cal-heatmap";
 import Tooltip from "cal-heatmap/plugins/Tooltip";
-// Optionally import the CSS
 import "cal-heatmap/cal-heatmap.css";
 import { useEffect, useMemo, useState } from "react";
 import { http } from "../../utils/fetch";
-import dayjs from "dayjs/esm/index.js";
-import "dayjs/locale/zh-cn";
 import { Button, Image, Text } from "@mantine/core";
 import { Video } from "../../components/Video";
+import { formatDate } from "../../utils/date";
 
 export default function Statistic() {
   useEffect(() => {
@@ -15,7 +13,12 @@ export default function Statistic() {
       const data = resp.data;
       const dateMap = new Map<string, number>();
       for (const { when } of data) {
-        const date = dayjs(when).format("YYYY-MM-DD");
+        // const date = formatDate(when);
+        const d = new Date(when);
+        const date = `${d.getFullYear()}-${(d.getMonth() + 1 + "").padStart(
+          2,
+          "0"
+        )}-${(d.getDate() + "").padStart(2, "0")}`;
         if (dateMap.has(date)) {
           let num = dateMap.get(date) ?? 0;
           num++;
@@ -30,7 +33,7 @@ export default function Statistic() {
       }
       const max = Math.max(...source.map(s => s.value));
 
-      const cal: CalHeatmap = new CalHeatmap();
+      const cal = new CalHeatmap();
 
       cal.paint(
         {
@@ -61,7 +64,7 @@ export default function Statistic() {
             Tooltip,
             {
               text: (timestamp: number, value: number) => {
-                const date = dayjs(timestamp).format("YYYY-MM-DD");
+                const date = formatDate(timestamp);
                 return `${date} 追了 ${value} 话`;
               },
             },
@@ -70,7 +73,7 @@ export default function Statistic() {
       );
 
       cal.on("click", (_event: any, timestamp: number) => {
-        setDate(dayjs(timestamp).format("YYYY-MM-DD"));
+        setDate(formatDate(timestamp));
       });
     });
   }, []);
@@ -93,7 +96,7 @@ export default function Statistic() {
 
       <div className="grid grid-cols-6 gap-4 mt-4">
         {videos.map(v => (
-          <div className="shadow-md rounded-md p-2">
+          <div key={v.id} className="shadow-md rounded-md p-2">
             <div className="relative">
               <Image
                 className="rounded-md overflow-hidden"
