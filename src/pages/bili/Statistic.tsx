@@ -1,7 +1,7 @@
 import CalHeatmap from "cal-heatmap";
 import Tooltip from "cal-heatmap/plugins/Tooltip";
 import "cal-heatmap/cal-heatmap.css";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { http } from "../../utils/fetch";
 import { Button, Image, Text } from "@mantine/core";
 import { Video } from "../../components/Video";
@@ -10,21 +10,23 @@ import { formatDate } from "../../utils/date";
 export default function Statistic() {
   useEffect(() => {
     http.get("/histories").then(resp => {
-      const data = resp.data;
       const dateMap = new Map<string, number>();
-      for (const { when } of data) {
-        // const date = formatDate(when);
-        const d = new Date(when);
-        const date = `${d.getFullYear()}-${(d.getMonth() + 1 + "").padStart(
-          2,
-          "0"
-        )}-${(d.getDate() + "").padStart(2, "0")}`;
+      const videosOfDate = new Map<string, string[]>();
+      const data = resp.data;
+      for (const { when, videoId } of data) {
+        const date = formatDate(when);
         if (dateMap.has(date)) {
           let num = dateMap.get(date) ?? 0;
           num++;
           dateMap.set(date, num);
         } else {
           dateMap.set(date, 1);
+        }
+        if (videosOfDate.has(date)) {
+          const ids = videosOfDate.get(date) ?? [];
+          videosOfDate.set(date, [...ids, videoId]);
+        } else {
+          videosOfDate.set(date, [videoId]);
         }
       }
       const source = [];
@@ -72,20 +74,22 @@ export default function Statistic() {
         ]
       );
 
-      cal.on("click", (_event: any, timestamp: number) => {
-        setDate(formatDate(timestamp));
+      cal.on("click", async (_event: any, timestamp: number) => {
+        let ids = videosOfDate.get(formatDate(timestamp)) ?? [];
+        let uniqueIds = Array.from(new Set(ids));
+        const query = uniqueIds.map(id => `ids=${id}`).join("&");
+        const r = await http.get(`/videos?${query}`);
+        let videos: Video[] = r.data;
+        for (let v of videos) {
+          v.count = 0;
+          for (let id of ids) {
+            if (id === v.id) v.count++;
+          }
+        }
+        return setVideos(videos);
       });
     });
   }, []);
-
-  const [date, setDate] = useState("");
-  useMemo(async () => {
-    if (date !== "") {
-      const r = await http.get(`/videos/date/${date}`);
-      return setVideos(r.data);
-    }
-    return [];
-  }, [date]);
 
   const [videos, setVideos] = useState<Video[]>([]);
 
