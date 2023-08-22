@@ -101,9 +101,9 @@ export default function Statistic() {
       <div className="grid grid-cols-6 gap-4 mt-4">
         {videos.map(v => (
           <div key={v.id} className="shadow-md rounded-md p-2">
-            <div className="relative">
+            <div className="relative h-[200px]">
               <Image
-                className="rounded-md overflow-hidden"
+                className="rounded-md overflow-hidden h-full"
                 src={v.cover}
               ></Image>
 

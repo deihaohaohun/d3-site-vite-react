@@ -33,7 +33,7 @@ export default function Video({
   const [v, setV] = useImmer(video);
 
   const updateV = () => {
-    setV(v => {
+    setV((v) => {
       v.current = v.current + 1;
     });
   };
@@ -117,8 +117,11 @@ export default function Video({
 
   return (
     <div className="relative shadow-md rounded-md p-2">
-      <div className="relative">
-        <Image className="rounded-md overflow-hidden" src={v.cover}></Image>
+      <div className="relative h-[200px]">
+        <Image
+          className="rounded-md overflow-hidden h-full"
+          src={v.cover}
+        ></Image>
 
         {v.status === "Doing" && (
           <div className="absolute bottom-2 left-2">
@@ -129,7 +132,7 @@ export default function Video({
         )}
       </div>
 
-      <Text size="lg" lineClamp={2}>
+      <Text size="lg" lineClamp={3}>
         {v.title}
       </Text>
       <Text size="sm" className="text-gray-500">

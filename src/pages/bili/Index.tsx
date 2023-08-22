@@ -41,18 +41,18 @@ export default function Index() {
       total: 1,
     },
     validate: {
-      title: value => (value.trim() === "" ? "请输入视频名称" : null),
-      cover: value => (value.trim() === "" ? "请输入视频封面链接" : null),
+      title: (value) => (value.trim() === "" ? "请输入视频名称" : null),
+      cover: (value) => (value.trim() === "" ? "请输入视频封面链接" : null),
     },
   });
   const createVideo = async () => {
     const { hasErrors, errors } = form.validate();
     if (!hasErrors) {
-      await http.post("/videos", form.values);
+      await http.post("/videos", { ...form.values, status: current });
       toast.success("添加视频成功");
       form.reset();
       close();
-      await getTypedVideos("Todo");
+      await getTypedVideos(current);
     } else {
       const keys = ["title", "cover"];
       for (const k of keys) {
@@ -64,12 +64,12 @@ export default function Index() {
   };
 
   const removeVideo = (id: string) => {
-    const newVideos = videos.filter(v => v.id !== id);
+    const newVideos = videos.filter((v) => v.id !== id);
     setVideos(newVideos);
   };
 
   const blob2base64 = async (blob: any) => {
-    return new Promise(r => {
+    return new Promise((r) => {
       const reader = new FileReader();
       reader.onload = () => {
         const dataUrl = reader.result as string;
@@ -81,9 +81,9 @@ export default function Index() {
   };
 
   const readImgFromClipboard = () => {
-    navigator.permissions.query({ name: "clipboard-read" }).then(result => {
+    navigator.permissions.query({ name: "clipboard-read" }).then((result) => {
       if (result.state == "granted" || result.state == "prompt") {
-        navigator.clipboard.read().then(async data => {
+        navigator.clipboard.read().then(async (data) => {
           for (let i = 0; i < data.length; i++) {
             console.log(data[i].types);
             const blob = await data[i].getType("image/png");
@@ -125,7 +125,7 @@ export default function Index() {
           onChange={getTypedVideos}
         />
 
-        {current === "Todo" && (
+        {["Todo", "Done"].includes(current) && (
           <ActionIcon
             size="lg"
             radius="md"
