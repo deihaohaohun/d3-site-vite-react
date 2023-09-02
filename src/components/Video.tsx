@@ -117,11 +117,10 @@ export default function Video({
 
   return (
     <div className="relative shadow-md rounded-md p-2">
-      <div className="relative h-[200px]">
-        <Image
-          className="rounded-md overflow-hidden h-full"
-          src={v.cover}
-        ></Image>
+      <div className="relative">
+        <div className="cover aspect-[3/4] overflow-hidden rounded-md">
+          <Image src={v.cover} fit="cover"></Image>
+        </div>
 
         {v.status === "Doing" && (
           <div className="absolute bottom-2 left-2">

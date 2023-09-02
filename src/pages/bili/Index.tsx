@@ -143,6 +143,8 @@ export default function Index() {
         ))}
       </div>
 
+      <h3 className="text-center text-2xl">没有更多数据了...</h3>
+
       <Modal
         opened={opened}
         onClose={close}
